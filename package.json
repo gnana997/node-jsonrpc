@@ -1,0 +1,78 @@
+{
+  "name": "node-jsonrpc",
+  "version": "1.0.0",
+  "description": "Transport-agnostic JSON-RPC 2.0 client and server for TypeScript/Node.js",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js",
+      "require": "./dist/client.cjs"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js",
+      "require": "./dist/server.cjs"
+    },
+    "./transport": {
+      "types": "./dist/transport.d.ts",
+      "import": "./dist/transport.js",
+      "require": "./dist/transport.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist coverage",
+    "prepublishOnly": "npm run clean && npm run build && npm run test"
+  },
+  "keywords": [
+    "jsonrpc",
+    "json-rpc",
+    "rpc",
+    "client",
+    "server",
+    "transport-agnostic",
+    "typescript",
+    "ipc",
+    "stdio"
+  ],
+  "author": "gnana997",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gnana997/node-jsonrpc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gnana997/node-jsonrpc/issues"
+  },
+  "homepage": "https://github.com/gnana997/node-jsonrpc#readme",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^4.0.6",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^4.0.6"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
