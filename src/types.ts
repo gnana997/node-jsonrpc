@@ -51,6 +51,54 @@ export type JSONRPCMessage =
   | JSONRPCNotification;
 
 /**
+ * JSON-RPC 2.0 Batch Request
+ * An array of request objects sent together
+ */
+export type JSONRPCBatchRequest = JSONRPCRequest[];
+
+/**
+ * JSON-RPC 2.0 Batch
+ * An array that can contain both requests and notifications
+ * Per JSON-RPC 2.0 spec, batches can mix requests and notifications
+ */
+export type JSONRPCBatch = Array<JSONRPCRequest | JSONRPCNotification>;
+
+/**
+ * JSON-RPC 2.0 Batch Response
+ * An array of response objects corresponding to a batch request
+ */
+export type JSONRPCBatchResponse = Array<JSONRPCResponse | JSONRPCErrorResponse>;
+
+/**
+ * Batch Execution Mode
+ */
+export type BatchExecutionMode = 'parallel' | 'sequential';
+
+/**
+ * Batch Request Options
+ * Options for executing a batch request
+ */
+export interface BatchOptions {
+  /**
+   * Execution mode: parallel (concurrent) or sequential (one-by-one)
+   * @default 'parallel'
+   */
+  mode?: BatchExecutionMode;
+
+  /**
+   * Timeout for the entire batch in milliseconds
+   * Overrides individual request timeouts
+   */
+  timeout?: number;
+
+  /**
+   * AbortSignal for batch cancellation
+   * When aborted, all pending requests will be rejected
+   */
+  signal?: AbortSignal;
+}
+
+/**
  * Pending Request
  * Tracks an in-flight request waiting for a response
  */
@@ -106,6 +154,20 @@ export interface Middleware {
    * Cannot modify the notification, but can perform side effects
    */
   onNotification?(notification: JSONRPCNotification): void | Promise<void>;
+
+  /**
+   * Called before a batch request is sent
+   * Can modify the batch or throw to prevent sending
+   */
+  onBatchRequest?(request: JSONRPCBatchRequest): JSONRPCBatchRequest | Promise<JSONRPCBatchRequest>;
+
+  /**
+   * Called after a batch response is received
+   * Can modify the batch response before it's returned to the caller
+   */
+  onBatchResponse?(
+    response: JSONRPCBatchResponse
+  ): JSONRPCBatchResponse | Promise<JSONRPCBatchResponse>;
 }
 
 /**

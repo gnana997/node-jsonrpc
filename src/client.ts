@@ -1,9 +1,11 @@
 import { EventEmitter } from 'node:events';
+import { BatchRequest } from './batch.js';
 import { JSONRPCError } from './error.js';
 import { type Logger, createLogger, noopLogger } from './logger.js';
 import { executeMiddlewareChain } from './middleware.js';
 import type { Transport } from './transport.js';
 import type {
+  JSONRPCBatchResponse,
   JSONRPCClientConfig,
   JSONRPCMessage,
   JSONRPCNotification,
@@ -14,7 +16,12 @@ import type {
   RequestOptions,
 } from './types.js';
 import { IDGenerator } from './utils/idGenerator.js';
-import { isErrorResponse, isNotification, isResponse } from './utils/typeGuards.js';
+import {
+  isBatchResponse,
+  isErrorResponse,
+  isNotification,
+  isResponse,
+} from './utils/typeGuards.js';
 
 /**
  * JSON-RPC 2.0 Client
@@ -267,12 +274,30 @@ export class JSONRPCClient extends EventEmitter {
    * Create a batch request
    * Returns a BatchRequest object that can be used to send multiple requests at once
    *
-   * Note: Batch support is a future feature
-   * @internal
+   * @returns BatchRequest builder instance
+   *
+   * @example
+   * ```typescript
+   * const batch = client.batch();
+   * batch.add('add', { a: 1, b: 2 });
+   * batch.add('subtract', { minuend: 10, subtrahend: 5 });
+   *
+   * // Execute in parallel (default)
+   * const [sum, difference] = await batch.execute();
+   * console.log(sum, difference); // 3, 5
+   *
+   * // Execute sequentially
+   * const results = await batch.execute({ mode: 'sequential' });
+   * ```
    */
-  batch(): any {
-    throw new Error('Batch requests not yet implemented');
-    // return new BatchRequest(this);
+  batch(): BatchRequest {
+    return new BatchRequest(
+      this.transport,
+      this.idGenerator,
+      this.pendingRequests,
+      this.config.middleware,
+      this.config.requestTimeout
+    );
   }
 
   /**
@@ -280,7 +305,7 @@ export class JSONRPCClient extends EventEmitter {
    * @private
    */
   private async handleRawMessage(messageStr: string): Promise<void> {
-    let message: JSONRPCMessage;
+    let message: JSONRPCMessage | JSONRPCBatchResponse;
 
     try {
       message = JSON.parse(messageStr);
@@ -290,6 +315,13 @@ export class JSONRPCClient extends EventEmitter {
       return;
     }
 
+    // Handle batch response
+    if (isBatchResponse(message)) {
+      await this.handleBatchResponse(message);
+      return;
+    }
+
+    // Handle single message
     if (isResponse(message) || isErrorResponse(message)) {
       await this.handleResponse(message);
     } else if (isNotification(message)) {
@@ -375,6 +407,31 @@ export class JSONRPCClient extends EventEmitter {
 
     // Emit notification event
     this.emit('notification', notification.method, notification.params);
+  }
+
+  /**
+   * Handle a batch response
+   * @private
+   */
+  private async handleBatchResponse(batchResponse: JSONRPCBatchResponse): Promise<void> {
+    this.logger.debug('Received batch response with', batchResponse.length, 'items');
+
+    // Apply batch response middleware
+    let finalBatchResponse = batchResponse;
+    if (this.config.middleware && this.config.middleware.length > 0) {
+      finalBatchResponse = await executeMiddlewareChain(
+        this.config.middleware,
+        'onBatchResponse',
+        batchResponse
+      );
+    }
+
+    // Process each response in the batch
+    for (const response of finalBatchResponse) {
+      // Each response is either a success or error response
+      // Delegate to the single response handler
+      await this.handleResponse(response);
+    }
   }
 
   /**

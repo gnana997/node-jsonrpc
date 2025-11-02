@@ -1,4 +1,5 @@
 import type {
+  JSONRPCBatch,
   JSONRPCErrorResponse,
   JSONRPCMessage,
   JSONRPCNotification,
@@ -83,6 +84,18 @@ export function isJSONRPCMessage(message: any): message is JSONRPCMessage {
  */
 export function isBatchRequest(value: any): value is JSONRPCRequest[] {
   return Array.isArray(value) && value.length > 0 && value.every(isRequest);
+}
+
+/**
+ * Type guard to check if a value is a batch (array of requests and/or notifications)
+ * Per JSON-RPC 2.0 spec, a batch can contain requests, notifications, or both
+ */
+export function isBatch(value: any): value is JSONRPCBatch {
+  return (
+    Array.isArray(value) &&
+    value.length >= 0 && // Allow empty arrays to be handled specially by server
+    value.every((item) => isRequest(item) || isNotification(item))
+  );
 }
 
 /**

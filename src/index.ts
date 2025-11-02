@@ -11,13 +11,21 @@ export { JSONRPCClient } from './client.js';
 // Core server
 export { JSONRPCServer } from './server.js';
 
+// Batch requests
+export { BatchRequest } from './batch.js';
+
 // Transport interfaces
 export type { Transport, TransportServer } from './transport.js';
 
 // Types
 export type {
+  BatchExecutionMode,
+  BatchOptions,
   ClientEvents,
   Handler,
+  JSONRPCBatch,
+  JSONRPCBatchRequest,
+  JSONRPCBatchResponse,
   JSONRPCClientConfig,
   JSONRPCError as IJSONRPCError,
   JSONRPCErrorResponse,
@@ -51,6 +59,7 @@ export { createLogger, defaultLogger, noopLogger, type Logger, type LogLevel } f
 // Utilities
 export { IDGenerator, defaultIDGenerator } from './utils/idGenerator.js';
 export {
+  isBatch,
   isBatchRequest,
   isBatchResponse,
   isErrorResponse,

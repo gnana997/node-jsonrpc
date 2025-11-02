@@ -5,6 +5,9 @@ import { executeMiddlewareChain } from './middleware.js';
 import type { Transport, TransportServer } from './transport.js';
 import type {
   Handler,
+  JSONRPCBatch,
+  JSONRPCBatchRequest,
+  JSONRPCBatchResponse,
   JSONRPCErrorResponse,
   JSONRPCMessage,
   JSONRPCNotification,
@@ -14,7 +17,7 @@ import type {
   Middleware,
   RequestContext,
 } from './types.js';
-import { isNotification, isRequest } from './utils/typeGuards.js';
+import { isBatch, isNotification, isRequest } from './utils/typeGuards.js';
 
 /**
  * JSON-RPC 2.0 Server
@@ -335,7 +338,7 @@ export class JSONRPCServer extends EventEmitter {
    * @private
    */
   private async handleRawMessage(messageStr: string, transport: Transport): Promise<void> {
-    let message: JSONRPCMessage;
+    let message: JSONRPCMessage | JSONRPCBatchRequest;
 
     try {
       message = JSON.parse(messageStr);
@@ -346,6 +349,13 @@ export class JSONRPCServer extends EventEmitter {
       return;
     }
 
+    // Handle batch (requests and/or notifications)
+    if (isBatch(message)) {
+      await this.handleBatchRequest(message, transport);
+      return;
+    }
+
+    // Handle single message
     if (isRequest(message)) {
       await this.handleRequest(message, transport);
     } else if (isNotification(message)) {
@@ -466,6 +476,156 @@ export class JSONRPCServer extends EventEmitter {
 
     // Emit notification event
     this.emit('notification', notification.method, notification.params, transport);
+  }
+
+  /**
+   * Handle a batch from a client (can contain requests and/or notifications)
+   * @private
+   */
+  private async handleBatchRequest(
+    batchRequest: JSONRPCBatch,
+    transport: Transport
+  ): Promise<void> {
+    this.logger.debug('Received batch request with', batchRequest.length, 'items');
+
+    // Per JSON-RPC 2.0 spec: empty batch is invalid
+    if (batchRequest.length === 0) {
+      this.sendErrorResponse(transport, null, JSONRPCError.invalidRequest());
+      return;
+    }
+
+    // Apply batch request middleware
+    let processedBatch = batchRequest;
+    if (this.config.middleware && this.config.middleware.length > 0) {
+      try {
+        processedBatch = await executeMiddlewareChain(
+          this.config.middleware,
+          'onBatchRequest',
+          batchRequest
+        );
+      } catch (error) {
+        this.logger.error('Batch request middleware error:', error);
+        this.sendErrorResponse(transport, null, JSONRPCError.internalError('Middleware error'));
+        return;
+      }
+    }
+
+    // Process all requests in parallel
+    const responsePromises = processedBatch.map(async (item) => {
+      // Handle notifications separately (no response)
+      if (isNotification(item)) {
+        await this.handleNotification(item, transport);
+        return null; // No response for notifications
+      }
+
+      // Handle regular requests - return the response
+      if (isRequest(item)) {
+        return this.processRequestForBatch(item, transport);
+      }
+
+      // Invalid item in batch
+      return {
+        jsonrpc: '2.0' as const,
+        error: JSONRPCError.invalidRequest().toJSON(),
+        id: null,
+      };
+    });
+
+    const responses = await Promise.all(responsePromises);
+
+    // Filter out null responses (from notifications)
+    const batchResponse: JSONRPCBatchResponse = responses.filter(
+      (r): r is JSONRPCResponse | JSONRPCErrorResponse => r !== null
+    );
+
+    // Per JSON-RPC 2.0 spec: if all requests were notifications, don't send a response
+    if (batchResponse.length === 0) {
+      this.logger.debug('Batch contained only notifications, not sending response');
+      return;
+    }
+
+    // Apply batch response middleware
+    let finalBatchResponse = batchResponse;
+    if (this.config.middleware && this.config.middleware.length > 0) {
+      finalBatchResponse = await executeMiddlewareChain(
+        this.config.middleware,
+        'onBatchResponse',
+        batchResponse
+      );
+    }
+
+    // Send batch response
+    this.logger.debug('Sending batch response with', finalBatchResponse.length, 'items');
+    const messageStr = JSON.stringify(finalBatchResponse);
+    transport.send(messageStr);
+  }
+
+  /**
+   * Process a single request within a batch and return the response
+   * @private
+   */
+  private async processRequestForBatch(
+    request: JSONRPCRequest,
+    transport: Transport
+  ): Promise<JSONRPCResponse | JSONRPCErrorResponse> {
+    try {
+      // Apply request middleware
+      let processedRequest = request;
+      if (this.config.middleware && this.config.middleware.length > 0) {
+        processedRequest = await executeMiddlewareChain(
+          this.config.middleware,
+          'onRequest',
+          request
+        );
+      }
+
+      // Check if method exists
+      const handler = this.methods.get(processedRequest.method);
+      if (!handler) {
+        return {
+          jsonrpc: '2.0',
+          error: JSONRPCError.methodNotFound(processedRequest.method).toJSON(),
+          id: processedRequest.id,
+        };
+      }
+
+      // Build request context
+      const context: RequestContext = {
+        method: processedRequest.method,
+        requestId: processedRequest.id,
+        transport,
+      };
+
+      // Call handler
+      const result = await handler(processedRequest.params, context);
+
+      // Build response
+      let response: JSONRPCResponse = {
+        jsonrpc: '2.0',
+        result,
+        id: processedRequest.id,
+      };
+
+      // Apply response middleware
+      if (this.config.middleware && this.config.middleware.length > 0) {
+        response = await executeMiddlewareChain(this.config.middleware, 'onResponse', response);
+      }
+
+      return response;
+    } catch (error: any) {
+      const jsonRpcError =
+        error instanceof JSONRPCError
+          ? error
+          : JSONRPCError.internalError(error.message, {
+              stack: error.stack,
+            });
+
+      return {
+        jsonrpc: '2.0',
+        error: jsonRpcError.toJSON(),
+        id: request.id,
+      };
+    }
   }
 
   /**
