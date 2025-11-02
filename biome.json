@@ -23,6 +23,19 @@
       }
     }
   },
+  "overrides": [
+    {
+      "include": ["examples/**/*.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noAssignInExpressions": "off",
+            "noExportsInTest": "off"
+          }
+        }
+      }
+    }
+  ],
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,

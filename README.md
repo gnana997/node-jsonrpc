@@ -78,6 +78,31 @@ await server.listen();
 server.broadcast('serverStatus', { status: 'ready' });
 ```
 
+## Examples
+
+The `examples/` directory contains complete, runnable examples demonstrating various features:
+
+### Client Examples
+
+- [`basic-client.ts`](../examples/client/basic-client.ts) - Basic request/response and notifications
+- [`batch-client.ts`](../examples/client/batch-client.ts) - Parallel and sequential batch requests
+- [`middleware-client.ts`](../examples/client/middleware-client.ts) - Logging, metrics, auth, and custom middleware
+- [`error-handling-client.ts`](../examples/client/error-handling-client.ts) - Timeout, cancellation, and error recovery
+
+### Server Examples
+
+- [`basic-server.ts`](../examples/server/basic-server.ts) - Method registration and request handling
+- [`notification-server.ts`](../examples/server/notification-server.ts) - Broadcasting and pub/sub patterns
+- [`middleware-server.ts`](../examples/server/middleware-server.ts) - Auth, validation, and rate limiting
+- [`multi-client-server.ts`](../examples/server/multi-client-server.ts) - Managing multiple clients and client-to-client messaging
+
+### Testing Examples
+
+- [`test-client.ts`](../examples/testing/test-client.ts) - Unit testing client functionality
+- [`test-server.ts`](../examples/testing/test-server.ts) - Unit testing server functionality
+- [`test-integration.ts`](../examples/testing/test-integration.ts) - Integration testing patterns
+- [`mock-transport.ts`](../examples/testing/mock-transport.ts) - Mock transport for testing
+
 ## Transport Abstraction
 
 This package is transport-agnostic. You need to provide a `Transport` implementation for the client and a `TransportServer` implementation for the server.
