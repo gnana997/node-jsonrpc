@@ -498,9 +498,7 @@ describe('JSONRPCClient', () => {
       const controller = new AbortController();
       controller.abort();
 
-      await expect(batch.execute({ signal: controller.signal })).rejects.toThrow(
-        'Request aborted'
-      );
+      await expect(batch.execute({ signal: controller.signal })).rejects.toThrow('Request aborted');
     });
   });
 
