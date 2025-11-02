@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API documentation for `node-jsonrpc` - a transport-agnostic JSON-RPC 2.0 implementation for TypeScript and Node.js.
+Complete API documentation for `@gnana997/node-jsonrpc` - a transport-agnostic JSON-RPC 2.0 implementation for TypeScript and Node.js.
 
 ## Table of Contents
 
@@ -36,7 +36,7 @@ new JSONRPCClient(config: JSONRPCClientConfig)
 **Example:**
 
 ```typescript
-import { JSONRPCClient } from 'node-jsonrpc';
+import { JSONRPCClient } from '@gnana997/node-jsonrpc';
 import { MyTransport } from './transports';
 
 const client = new JSONRPCClient({
@@ -217,7 +217,7 @@ use(middleware: Middleware): void
 **Example:**
 
 ```typescript
-import { LoggingMiddleware } from 'node-jsonrpc';
+import { LoggingMiddleware } from '@gnana997/node-jsonrpc';
 
 client.use(new LoggingMiddleware(console));
 ```
@@ -349,7 +349,7 @@ new JSONRPCServer(config: JSONRPCServerConfig)
 **Example:**
 
 ```typescript
-import { JSONRPCServer } from 'node-jsonrpc';
+import { JSONRPCServer } from '@gnana997/node-jsonrpc';
 import { MyTransportServer } from './transports';
 
 const server = new JSONRPCServer({
@@ -787,7 +787,7 @@ client.use(loggingMiddleware);
 Logs all JSON-RPC activity.
 
 ```typescript
-import { LoggingMiddleware } from 'node-jsonrpc';
+import { LoggingMiddleware } from '@gnana997/node-jsonrpc';
 
 const logger = {
   info: (msg, data) => console.log(msg, data),
@@ -806,7 +806,7 @@ client.use(new LoggingMiddleware(logger));
 Tracks request metrics (timing, counts, errors).
 
 ```typescript
-import { MetricsMiddleware } from 'node-jsonrpc';
+import { MetricsMiddleware } from '@gnana997/node-jsonrpc';
 
 const metrics = new MetricsMiddleware({
   onMetric: (metric) => {
@@ -828,7 +828,7 @@ client.use(metrics);
 Transforms requests and responses.
 
 ```typescript
-import { TransformMiddleware } from 'node-jsonrpc';
+import { TransformMiddleware } from '@gnana997/node-jsonrpc';
 
 const transformer = new TransformMiddleware({
   transformRequest: (req) => ({
@@ -851,7 +851,7 @@ client.use(transformer);
 Validates requests and responses.
 
 ```typescript
-import { ValidationMiddleware } from 'node-jsonrpc';
+import { ValidationMiddleware } from '@gnana997/node-jsonrpc';
 
 const validator = new ValidationMiddleware({
   validateRequest: (req) => {
@@ -1006,7 +1006,7 @@ import {
   isBatchRequest,
   isBatchResponse,
   isJSONRPCMessage,
-} from 'node-jsonrpc';
+} from '@gnana997/node-jsonrpc';
 
 if (isRequest(message)) {
   // message is JSONRPCRequest
@@ -1022,7 +1022,7 @@ if (isBatch(message)) {
 The default ID generator creates monotonically increasing numeric IDs:
 
 ```typescript
-import { defaultIDGenerator, IDGenerator } from 'node-jsonrpc';
+import { defaultIDGenerator, IDGenerator } from '@gnana997/node-jsonrpc';
 
 // Custom ID generator
 class UUIDGenerator implements IDGenerator {
@@ -1040,7 +1040,7 @@ const client = new JSONRPCClient({
 ### Logging
 
 ```typescript
-import { createLogger, noopLogger, type Logger } from 'node-jsonrpc';
+import { createLogger, noopLogger, type Logger } from '@gnana997/node-jsonrpc';
 
 // Create custom logger
 const logger = createLogger({
@@ -1060,7 +1060,7 @@ const silent = noopLogger;
 ### Basic Client-Server
 
 ```typescript
-import { JSONRPCClient, JSONRPCServer } from 'node-jsonrpc';
+import { JSONRPCClient, JSONRPCServer } from '@gnana997/node-jsonrpc';
 import { MyTransport, MyTransportServer } from './transports';
 
 // Server
@@ -1095,7 +1095,7 @@ import {
   JSONRPCClient,
   LoggingMiddleware,
   MetricsMiddleware,
-} from 'node-jsonrpc';
+} from '@gnana997/node-jsonrpc';
 
 const client = new JSONRPCClient({
   transport: new MyTransport(),

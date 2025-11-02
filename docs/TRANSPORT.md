@@ -1,6 +1,6 @@
 # Transport Guide
 
-This guide explains how to implement custom transports for `node-jsonrpc` and provides best practices for transport development.
+This guide explains how to implement custom transports for `@gnana997/node-jsonrpc` and provides best practices for transport development.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ This guide explains how to implement custom transports for `node-jsonrpc` and pr
 
 ## Overview
 
-Transports in `node-jsonrpc` are responsible for:
+Transports in `@gnana997/node-jsonrpc` are responsible for:
 
 1. **Sending messages** - Transmitting JSON-RPC messages to the other party
 2. **Receiving messages** - Listening for and emitting incoming messages
@@ -336,7 +336,7 @@ this.server.on('connection', (socket) => {
 
 ## Message Framing
 
-JSON-RPC messages must be clearly delimited so the receiver knows where one message ends and the next begins. The standard approach in `node-jsonrpc` is **line-delimited JSON**.
+JSON-RPC messages must be clearly delimited so the receiver knows where one message ends and the next begins. The standard approach in `@gnana997/node-jsonrpc` is **line-delimited JSON**.
 
 ### Line-Delimited JSON
 
@@ -406,7 +406,7 @@ Let's implement a simple TCP transport from scratch.
 ```typescript
 import { EventEmitter } from 'events';
 import * as net from 'net';
-import type { Transport } from 'node-jsonrpc';
+import type { Transport } from '@gnana997/node-jsonrpc';
 
 export class TCPTransport extends EventEmitter implements Transport {
   private socket: net.Socket;
@@ -535,7 +535,7 @@ isConnected(): boolean {
 ```typescript
 import { EventEmitter } from 'events';
 import * as net from 'net';
-import type { Transport } from 'node-jsonrpc';
+import type { Transport } from '@gnana997/node-jsonrpc';
 
 export class TCPTransport extends EventEmitter implements Transport {
   private socket!: net.Socket;
@@ -708,7 +708,7 @@ it('should connect to server and exchange messages', async () => {
 ```typescript
 import { EventEmitter } from 'events';
 import WebSocket from 'ws';
-import type { Transport } from 'node-jsonrpc';
+import type { Transport } from '@gnana997/node-jsonrpc';
 
 export class WebSocketTransport extends EventEmitter implements Transport {
   private ws?: WebSocket;
@@ -786,7 +786,7 @@ export class WebSocketTransport extends EventEmitter implements Transport {
 
 ```typescript
 import { EventEmitter } from 'events';
-import type { Transport } from 'node-jsonrpc';
+import type { Transport } from '@gnana997/node-jsonrpc';
 
 export class HTTPTransport extends EventEmitter implements Transport {
   private connected = false;

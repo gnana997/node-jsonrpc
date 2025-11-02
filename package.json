@@ -1,6 +1,6 @@
 {
-  "name": "node-jsonrpc",
-  "version": "1.0.0",
+  "name": "@gnana997/node-jsonrpc",
+  "version": "0.1.2",
   "description": "Transport-agnostic JSON-RPC 2.0 client and server for TypeScript/Node.js",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -39,7 +39,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist coverage",
+    "clean": "node -e \"const fs = require('fs'); ['dist', 'coverage'].forEach(d => fs.rmSync(d, {recursive: true, force: true}))\"",
     "prepublishOnly": "npm run clean && npm run build && npm run test"
   },
   "keywords": [

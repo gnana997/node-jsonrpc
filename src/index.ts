@@ -1,8 +1,8 @@
 /**
- * node-jsonrpc
+ * @gnana997/node-jsonrpc
  * Transport-agnostic JSON-RPC 2.0 client and server for TypeScript/Node.js
  *
- * @module node-jsonrpc
+ * @module @gnana997/node-jsonrpc
  */
 
 // Core client

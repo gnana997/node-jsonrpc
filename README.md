@@ -1,9 +1,9 @@
-# node-jsonrpc
+# @gnana997/node-jsonrpc
 
 > Transport-agnostic JSON-RPC 2.0 client and server for TypeScript/Node.js
 
+[![npm version](https://badge.fury.io/js/%40gnana997%2Fnode-jsonrpc.svg)](https://www.npmjs.com/package/@gnana997/node-jsonrpc)
 [![CI](https://github.com/gnana997/node-jsonrpc/actions/workflows/ci.yml/badge.svg)](https://github.com/gnana997/node-jsonrpc/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/node-jsonrpc.svg)](https://www.npmjs.com/package/node-jsonrpc)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
@@ -23,7 +23,7 @@
 ## Installation
 
 ```bash
-npm install node-jsonrpc
+npm install @gnana997/node-jsonrpc
 ```
 
 ## Quick Start
@@ -31,7 +31,7 @@ npm install node-jsonrpc
 ### Client
 
 ```typescript
-import { JSONRPCClient } from 'node-jsonrpc';
+import { JSONRPCClient } from '@gnana997/node-jsonrpc';
 import { MyTransport } from './my-transport'; // Your transport implementation
 
 const client = new JSONRPCClient({
@@ -56,7 +56,7 @@ client.on('notification', (method, params) => {
 ### Server
 
 ```typescript
-import { JSONRPCServer } from 'node-jsonrpc';
+import { JSONRPCServer } from '@gnana997/node-jsonrpc';
 import { MyTransportServer } from './my-transport'; // Your transport implementation
 
 const server = new JSONRPCServer({

@@ -42,7 +42,7 @@ import {
  *
  * @example
  * ```typescript
- * import { JSONRPCClient } from 'node-jsonrpc';
+ * import { JSONRPCClient } from '@gnana997/node-jsonrpc';
  * import { MyTransport } from './my-transport';
  *
  * const client = new JSONRPCClient({
@@ -258,7 +258,7 @@ export class JSONRPCClient extends EventEmitter {
    *
    * @example
    * ```typescript
-   * import { LoggingMiddleware } from 'node-jsonrpc';
+   * import { LoggingMiddleware } from '@gnana997/node-jsonrpc';
    *
    * client.use(new LoggingMiddleware());
    * ```

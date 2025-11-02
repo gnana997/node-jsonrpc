@@ -36,7 +36,7 @@ import { isBatch, isNotification, isRequest } from './utils/typeGuards.js';
  *
  * @example
  * ```typescript
- * import { JSONRPCServer } from 'node-jsonrpc';
+ * import { JSONRPCServer } from '@gnana997/node-jsonrpc';
  * import { MyTransportServer } from './my-transport';
  *
  * const server = new JSONRPCServer({
@@ -218,7 +218,7 @@ export class JSONRPCServer extends EventEmitter {
    *
    * @example
    * ```typescript
-   * import { LoggingMiddleware } from 'node-jsonrpc';
+   * import { LoggingMiddleware } from '@gnana997/node-jsonrpc';
    *
    * server.use(new LoggingMiddleware());
    * ```
