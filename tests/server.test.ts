@@ -34,9 +34,9 @@ describe('JSONRPCServer', () => {
 
     // Override send methods to forward messages bidirectionally
     const originalClientSend = clientTransport.send.bind(clientTransport);
-    const originalServerSend = serverTransport.send.bind(serverTransport);
-    const originalGetLastSent = clientTransport.getLastSentMessage.bind(clientTransport);
-    const originalGetLastSentJSON = clientTransport.getLastSentMessageAsJSON.bind(clientTransport);
+    serverTransport.send.bind(serverTransport);
+    clientTransport.getLastSentMessage.bind(clientTransport);
+    clientTransport.getLastSentMessageAsJSON.bind(clientTransport);
 
     clientTransport.send = (msg: string) => {
       originalClientSend(msg);
@@ -351,7 +351,7 @@ describe('JSONRPCServer', () => {
     });
 
     it('should not broadcast to disconnected clients', async () => {
-      const client1 = await createConnectedClient();
+      await createConnectedClient();
       const client2 = await createConnectedClient();
 
       // Disconnect client2 (both transports)
@@ -459,11 +459,11 @@ describe('JSONRPCServer', () => {
     it('should track connected clients', async () => {
       expect(server.getConnectionCount()).toBe(0);
 
-      const client1 = await createConnectedClient();
+      await createConnectedClient();
 
       expect(server.getConnectionCount()).toBe(1);
 
-      const client2 = await createConnectedClient();
+      await createConnectedClient();
 
       expect(server.getConnectionCount()).toBe(2);
     });
