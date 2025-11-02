@@ -1,6 +1,6 @@
 {
   "name": "@gnana997/node-jsonrpc",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Transport-agnostic JSON-RPC 2.0 client and server for TypeScript/Node.js",
   "type": "module",
   "main": "./dist/index.cjs",
